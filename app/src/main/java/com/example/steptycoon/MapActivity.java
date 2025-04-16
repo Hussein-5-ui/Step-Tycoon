@@ -26,4 +26,5 @@ public class MapActivity extends AppCompatActivity {
             return insets;
         });
     }
+
 }
