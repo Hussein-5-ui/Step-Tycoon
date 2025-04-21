@@ -17,6 +17,14 @@ public class LoginViewModel extends ViewModel {
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
     private LoginRepository loginRepository;
 
+    // Define valid username-password pairs
+    private static final String[][] VALID_CREDENTIALS = {
+            {"jeremiah", "pass123"},
+            {"hussein", "mapgame"},
+            {"lemia", "tycoonup"},
+            {"jade", "statsqueen"}
+    };
+
     LoginViewModel(LoginRepository loginRepository) {
         this.loginRepository = loginRepository;
     }
@@ -44,27 +52,36 @@ public class LoginViewModel extends ViewModel {
     public void loginDataChanged(String username, String password) {
         if (!isUserNameValid(username)) {
             loginFormState.setValue(new LoginFormState(R.string.invalid_username, null));
-        } else if (!isPasswordValid(password)) {
+        } else if (!isPasswordValid(username, password)) {
             loginFormState.setValue(new LoginFormState(null, R.string.invalid_password));
         } else {
             loginFormState.setValue(new LoginFormState(true));
         }
     }
 
-    // A placeholder username validation check
     private boolean isUserNameValid(String username) {
-        if (username == null) {
+        if (username == null || username.trim().isEmpty()) {
             return false;
         }
-        if (username.contains("@")) {
-            return Patterns.EMAIL_ADDRESS.matcher(username).matches();
-        } else {
-            return !username.trim().isEmpty();
+        // Check if username exists in valid credentials
+        for (String[] credential : VALID_CREDENTIALS) {
+            if (credential[0].equals(username)) {
+                return true;
+            }
         }
+        return false;
     }
 
-    // A placeholder password validation check
-    private boolean isPasswordValid(String password) {
-        return password != null && password.trim().length() > 5;
+    private boolean isPasswordValid(String username, String password) {
+        if (password == null || password.trim().isEmpty()) {
+            return false;
+        }
+        // Check if password matches the username
+        for (String[] credential : VALID_CREDENTIALS) {
+            if (credential[0].equals(username) && credential[1].equals(password)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

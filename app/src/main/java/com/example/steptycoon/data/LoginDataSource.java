@@ -6,6 +6,8 @@ import com.example.steptycoon.util.PasswordHasher;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.
