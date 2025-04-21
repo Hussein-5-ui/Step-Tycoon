@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
-public class LoginDataSource {
+public class tyLoginDataSource {
     // Predefined list of users and passwords
     private static final Map<String, String> VALID_USERS = new HashMap<String, String>() {{
         put("jeremiah", "pass123");
