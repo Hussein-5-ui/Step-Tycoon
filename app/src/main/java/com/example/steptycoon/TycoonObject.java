@@ -28,5 +28,10 @@ public class TycoonObject {
         price= (int) (price*1.05);
         count++;
     }
+    public void savedInstanceConvert(int cnt){
+        while(count<cnt){
+            buyOne();
+        }
+    }
 
 }

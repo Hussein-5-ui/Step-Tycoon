@@ -1,6 +1,7 @@
 package com.example.steptycoon;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -12,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 
 public class TycoonActivity extends AppCompatActivity implements SensorEventListener{
     TextView titleLabel,cpsLabel,coinLabel;
-    Long stepCount;//Only for stats page
+    Integer stepCount;//Only for stats page
     ArrayList<TycoonObject> tycoons;
     TycoonAdapter adapter;
     ListView lstTycoon;
@@ -55,7 +57,12 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         tycoons.add(new TycoonObject("Jumping Jacks",500,1000));
         tycoons.add(new TycoonObject("Extreme Sports",10000,10000));
         tycoons.add(new TycoonObject("Flight",100000,100000));
+        //Saved Instance for Tycoons
+        for(int i=0;i<adapter.tycoons.size();i++){
+           tycoons.get(i).savedInstanceConvert(savedInstanceState.getInt("tyc#"+i,0));
+        }
         adapter=new TycoonAdapter(getApplicationContext(),tycoons);
+        adapter.totalMoney=savedInstanceState.getInt("TotalMoney",0);
         //Sensors
         sensorManager= (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         acc_sensor=sensorManager.getDefaultSensor((Sensor.TYPE_STEP_DETECTOR));
@@ -64,7 +71,11 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         titleLabel.setText("Gym");//Change to whoever's log in it is
         cpsLabel=findViewById(R.id.absltCPSLabel);
         coinLabel=findViewById(R.id.totalCoinLabel);
-        stepCount= 0L;//Or whatever the before stepcount was
+        stepCount= 0;//Or whatever the before stepcount was
+        if(savedInstanceState!=null){
+
+        }
+
 
 
     }
@@ -92,7 +103,24 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
     @Override
     protected void onStop() {
         super.onStop();
+
+    }
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("totalMoney",adapter.totalMoney);
+        for(int i=0;i<adapter.tycoons.size();i++){
+            outState.putInt("tyc#"+i,adapter.tycoons.get(i).count);
+        }
+
+        //Shared Pref
+        SharedPreferences sharedPref;
+        sharedPref = getSharedPreferences("com.step_tycoon", Context.
+                MODE_PRIVATE);
         sensorManager.unregisterListener(this);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("stepCount",stepCount);
+        editor.apply();
     }
 
 
