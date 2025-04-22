@@ -63,5 +63,16 @@ public class StatsActivity extends AppCompatActivity {
             Intent shareIntent = Intent.createChooser(sendIntent, null);
             startActivity(shareIntent);
         });
+
+        btnMapReturn.setOnClickListener(view -> {
+            Intent intent = new Intent(getApplicationContext(), MapActivity.class);
+            //intent.putExtra("username",etData.getText().toString());
+            startActivity(intent);
+        });
+        btnGoToTycoon.setOnClickListener(view -> {
+            Intent intent = new Intent(getApplicationContext(), TycoonActivity.class);
+            //intent.putExtra("username",etData.getText().toString());
+            startActivity(intent);
+        });
     }
 }
