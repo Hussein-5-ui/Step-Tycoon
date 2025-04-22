@@ -1,7 +1,10 @@
 package com.example.steptycoon;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -12,6 +15,12 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class StatsActivity extends AppCompatActivity {
 
+    TextView tvStepsStat;
+    TextView tvCPSStat;
+    TextView tvBalanceStat;
+    Button btnShareStats;
+    Button btnGoToTycoon;
+    Button btnMapReturn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,14 +41,27 @@ public class StatsActivity extends AppCompatActivity {
         long balance = preferences.getLong("balance", 0);
 
         //find the textviews
-        TextView tvStepsStat = findViewById(R.id.tvStepsStat);
-        TextView tvCPSStat = findViewById(R.id.tvCPSStat );
-        TextView tvBalanceStat = findViewById(R.id.tvBalanceStat);
+        tvStepsStat = findViewById(R.id.tvStepsStat);
+        tvCPSStat = findViewById(R.id.tvCPSStat);
+        tvBalanceStat = findViewById(R.id.tvBalanceStat);
+        btnShareStats = findViewById(R.id.btnShareStats);
+        btnGoToTycoon = findViewById(R.id.btnGoToTycoon);
+        btnMapReturn= findViewById(R.id.btnMapReturn);
 
         //edit the textviews
         tvStepsStat.setText("Steps: " + steps);
         tvCPSStat.setText("CPS: " + cps);
         tvBalanceStat.setText("Balance: " + balance);
 
+        btnShareStats.setOnClickListener(view -> {
+           //share as plaintext
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, "My step Tycoon stats: Steps: " + steps + ", CPS: "+cps+", Balance: "+balance);
+            sendIntent.setType("text/plain");
+
+            Intent shareIntent = Intent.createChooser(sendIntent, null);
+            startActivity(shareIntent);
+        });
     }
 }
