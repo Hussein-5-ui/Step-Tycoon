@@ -56,6 +56,7 @@ public class TycoonAdapter extends BaseAdapter {
         buyButton.setText("Buy");
         buyButton.setOnClickListener(v->{
             if(totalMoney>=tycoons.get(i).price) {
+                totalMoney-=tycoons.get(i).buyOne();
                 tycoons.get(i).buyOne();
                 checkUnlockCondition(i);
             }
@@ -68,7 +69,7 @@ public class TycoonAdapter extends BaseAdapter {
         buyMaxButton.setText("Buy Max");
         buyMaxButton.setOnClickListener(v->{
             while(totalMoney>=tycoons.get(i).price) {
-                tycoons.get(i).buyOne();
+                totalMoney-=tycoons.get(i).buyOne();
                 checkUnlockCondition(i);
             }
             notifyDataSetChanged();

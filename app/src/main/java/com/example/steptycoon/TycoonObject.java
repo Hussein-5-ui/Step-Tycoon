@@ -24,9 +24,10 @@ public class TycoonObject {
     public int getCurrentIncome(){
         return count*cps;
     }
-    public void buyOne(){
+    public Integer buyOne(){
         price= (int) (price*1.05);
         count++;
+        return price;
     }
     public void savedInstanceConvert(int cnt){
         while(count<cnt){
