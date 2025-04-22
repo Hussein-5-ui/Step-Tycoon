@@ -163,8 +163,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         userMarker.setPosition(latLng);
                     float speed = location.getSpeed();
                     float bearing = location.getBearing();
-                    //only updates the bearing of the map if the speed is not 0
-                    if (speed > 0 && bearing != 0.0f) {
+                    //only updates the bearing of the map if the speed is greater than 0.5 m/s for a more stable map
+                    if (speed > 0.5 && bearing != 0.0f) {
                         CameraPosition cameraPosition = new CameraPosition.Builder()
                                 .target(latLng)
                                 .zoom(18f)
