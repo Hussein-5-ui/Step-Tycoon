@@ -67,8 +67,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //gets the persistent values from sharedPreferences and assigns them default values if they're not set up
         preferences= getSharedPreferences("com.step_tycoon",MODE_PRIVATE);//what's wrong here
         stepCounter=preferences.getInt("Steps",0);
-        cps=preferences.getInt("CPS",1);
-        balance=preferences.getInt("balance",0);
+        cps=preferences.getLong("CPS",1);
+        balance=preferences.getLong("balance",0);
         //initialize the text views
         tvSteps=findViewById(R.id.tvSteps);
         tvCps=findViewById(R.id.tvCps);
