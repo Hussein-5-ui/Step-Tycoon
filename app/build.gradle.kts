@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.secrets)
 }
 
 android {
@@ -47,7 +46,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation ("com.google.android.gms:play-services-maps:19.2.0")
-    implementation ("com.google.android.gms:play-services-location:18.0.0")
-    implementation ("com.google.android.material:material:1.11.0")
+    implementation ("com.google.android.gms:play-services-maps:18.2.0")
 }
