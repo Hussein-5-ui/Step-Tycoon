@@ -64,21 +64,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        //gets the persistent values from sharedPreferences and assigns them default values if they're not set up
         preferences= getSharedPreferences("com.step_tycoon",MODE_PRIVATE);//what's wrong here
         stepCounter=preferences.getInt("Steps",0);
         cps=preferences.getInt("CPS",1);
         balance=preferences.getInt("balance",0);
-
+        //initialize the text views
         tvSteps=findViewById(R.id.tvSteps);
         tvCps=findViewById(R.id.tvCps);
         tvBalance=findViewById(R.id.tvBalance);
         tvSteps.setText("Steps: "+stepCounter);
         tvCps.setText("CPS: "+cps);
         tvBalance.setText("Balance: "+balance);
+        //define the sensor manager and the step detector
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         step_sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        //define the mapFragment
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        //checks for the needed permissions, precise location and activity recognition
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
         else{
@@ -89,11 +93,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             requestPermissions(new String[]{android.Manifest.permission.ACTIVITY_RECOGNITION}, 1);
         }
     }
+    //updates the balance and steps whenever there's a step detected
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
             stepCounter++;
             balance+=cps;
+            //updates the text views based on the new data
             tvSteps.setText("Steps: " + stepCounter);
             tvBalance.setText("Balance: "+balance);
         }
@@ -103,7 +109,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
-
+    //Checks if the location permission was granted
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -111,6 +117,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //permission granted, sync map fragment
                 mapFragment.getMapAsync(this);
             } else {
                 // Permission denied, close the app
@@ -122,10 +129,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+        //when the map is ready, define the mMap and get locationUpdates
         mMap = googleMap;
         getLocationUpdates();
 
     }
+    //main method of logic
+    //gets location updates and changes the map position, rotation, and marker based on it
     @SuppressLint("MissingPermission")
     public void getLocationUpdates(){
         flpClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
@@ -138,6 +148,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
+                //if the locationResult is not empty, get the last location
                 if (!locationResult.getLocations().isEmpty()) {
                     Location location = locationResult.getLastLocation();
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -152,8 +163,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         userMarker.setPosition(latLng);
                     float speed = location.getSpeed();
                     float bearing = location.getBearing();
-
-                    if (speed > 0.5 && bearing != 0.0f) {
+                    //only updates the bearing of the map if the speed is not 0
+                    if (speed > 0 && bearing != 0.0f) {
                         CameraPosition cameraPosition = new CameraPosition.Builder()
                                 .target(latLng)
                                 .zoom(18f)
@@ -172,12 +183,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         flpClient.requestLocationUpdates(createLocationRequest(),cb, Looper.getMainLooper());
     }
+    //onclick method for navigating between the two activities
     public void navigate(View view){
         Intent intent;
+        // checks which view called it by the ID
         if(view.getId()==R.id.btnTycoon)
             intent=new Intent(MapActivity.this,TycoonActivity.class);
         else
             intent=new Intent(MapActivity.this,StatsActivity.class);
+        //saves the persistent information before starting the new activity
         SharedPreferences.Editor editor=preferences.edit();
         editor.putInt("Steps",stepCounter);
         editor.putLong("CPS",cps);
@@ -185,6 +199,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         editor.apply();
         startActivity(intent);
     }
+    // creates the locationRequest method
     private LocationRequest createLocationRequest(){
         LocationRequest request = LocationRequest.create();
         request.setWaitForAccurateLocation(true);
@@ -192,13 +207,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         return  request;
     }
-    protected void onPause(){
-        super.onPause();
-        System.out.println("OnPause");
-    }
     @Override
     protected void onStop() {
         super.onStop();
+        //saves the persistent data before closing the app
         SharedPreferences.Editor editor=preferences.edit();
         editor.putInt("Steps",stepCounter);
         editor.putLong("CPS",cps);
