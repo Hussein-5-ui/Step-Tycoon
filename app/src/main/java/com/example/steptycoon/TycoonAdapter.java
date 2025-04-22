@@ -100,7 +100,7 @@ public class TycoonAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
     public long updateTotalCps(){
-        long totalCps=0;
+        long totalCps=1;
         for(TycoonObject tycoon:tycoons){
             totalCps+=tycoon.getCurrentIncome();
         }
@@ -109,7 +109,7 @@ public class TycoonAdapter extends BaseAdapter {
         return totalCps;
     }
     public long getTotalCps(){
-        long totalCps=0;
+        long totalCps=1;
         for(TycoonObject tycoon:tycoons){
             totalCps+=tycoon.getCurrentIncome();
         }

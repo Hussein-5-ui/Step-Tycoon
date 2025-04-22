@@ -26,7 +26,7 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 
 public class TycoonActivity extends AppCompatActivity implements SensorEventListener{
-    TextView titleLabel,cpsLabel,coinLabel;
+    TextView titleLabel,cpsLabel,coinLabel,stepsLabel;
     Integer stepCount=0;//Only for stats page
     ArrayList<TycoonObject> tycoons;
     TycoonAdapter adapter;
@@ -34,6 +34,7 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
     SensorManager sensorManager;
     Sensor acc_sensor;
     Button mapButton,statsButton;
+    SharedPreferences preferences;
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,24 +55,26 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         //ListView
         lstTycoon=findViewById(R.id.tycoonList);
         tycoons=new ArrayList<TycoonObject>();
-        tycoons.add(new TycoonObject("Auto Walkers",10,100,true));
+        tycoons.add(new TycoonObject("Auto Walkers",10,10,true));
         tycoons.add(new TycoonObject("Running",100,150));
         tycoons.add(new TycoonObject("Stairs",200,450));
         tycoons.add(new TycoonObject("Jumping Jacks",500,1000));
         tycoons.add(new TycoonObject("Extreme Sports",10000,10000));
         tycoons.add(new TycoonObject("Flight",100000,100000));
         //Saved Instance for Tycoons
+        preferences= getSharedPreferences("com.step_tycoon",MODE_PRIVATE);
         if(savedInstanceState!=null) {
             for (int i = 0; i < tycoons.size(); i++) {
                 tycoons.get(i).savedInstanceConvert(savedInstanceState.getInt("tyc#" + i, 0));
             }
-            stepCount = savedInstanceState.getInt("stepCount", 0);//Or whatever the before stepcount was
             adapter = new TycoonAdapter(getApplicationContext(), tycoons);
-            adapter.totalMoney = savedInstanceState.getInt("TotalMoney", 0);
+            adapter.totalMoney = preferences.getInt("balance", 0);
         }
         else{
             adapter=new TycoonAdapter(getApplicationContext(),tycoons);
         }
+
+        stepCount=preferences.getInt("Steps",0);
         lstTycoon.setAdapter(adapter);
         //Sensors
         sensorManager= (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -81,6 +84,8 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         titleLabel.setText("Gym");//Change to whoever's log in it is
         cpsLabel=findViewById(R.id.absltCPSLabel);
         coinLabel=findViewById(R.id.totalCoinLabel);
+        stepsLabel=findViewById(R.id.totalStepsLabel);
+        stepsLabel.setText("Total Steps: "+stepCount);
 
         mapButton=findViewById(R.id.mapActivity);
         mapButton.setText("Back To Map");
@@ -103,6 +108,7 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
             cpsLabel.setText("Coins Per Step: "+adapter.updateTotalCps());
             coinLabel.setText("Total Coins: "+adapter.totalMoney);
             stepCount++;
+            stepsLabel.setText("Total Steps: "+ stepCount);
         };
 
     }

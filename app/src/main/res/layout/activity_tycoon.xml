@@ -13,8 +13,10 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/bottomGuide"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/topGuide" />
+        app:layout_constraintTop_toTopOf="@+id/topGuide"
+        app:layout_constraintVertical_bias="1.0" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/topGuide"
@@ -58,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginBottom="16dp"
-        android:text="Coins Per Second: 0"
+        android:text="Coins Per Second: 10"
         app:layout_constraintBottom_toTopOf="@+id/topGuide"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -86,4 +88,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/totalStepsLabel"
+        android:layout_width="332dp"
+        android:layout_height="17dp"
+        android:layout_marginTop="10dp"
+        android:text="TotalSteps"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tycoonList" />
 </androidx.constraintlayout.widget.ConstraintLayout>
