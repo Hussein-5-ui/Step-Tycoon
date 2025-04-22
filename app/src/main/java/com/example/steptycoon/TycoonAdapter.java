@@ -95,4 +95,11 @@ public class TycoonAdapter extends BaseAdapter {
         totalMoney+=totalCps;
         return totalCps;
     }
+    public long getTotalCps(){
+        long totalCps=0;
+        for(TycoonObject tycoon:tycoons){
+            totalCps+=tycoon.getCurrentIncome();
+        }
+        return  totalCps;
+    }
 }

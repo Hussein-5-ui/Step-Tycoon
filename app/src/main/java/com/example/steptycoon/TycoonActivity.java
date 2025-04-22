@@ -1,6 +1,7 @@
 package com.example.steptycoon;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -9,6 +10,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,6 +33,7 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
     ListView lstTycoon;
     SensorManager sensorManager;
     Sensor acc_sensor;
+    Button mapButton,statsButton;
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +75,18 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         cpsLabel=findViewById(R.id.absltCPSLabel);
         coinLabel=findViewById(R.id.totalCoinLabel);
         stepCount= 0;//Or whatever the before stepcount was
-        if(savedInstanceState!=null){
-
-        }
-
+        mapButton=findViewById(R.id.mapActivity);
+        mapButton.setText("Back To Map");
+        mapButton.setOnClickListener(v->{
+            Intent intent=new Intent(getApplicationContext(),MapActivity.class);
+            startActivity(intent);
+        });
+        statsButton=findViewById(R.id.statsActivity);
+        statsButton.setText("Stats");
+        statsButton.setOnClickListener(v->{
+            Intent intent=new Intent(getApplicationContext(), StatsActivity.class);
+            startActivity(intent);
+        });
 
 
     }
@@ -119,7 +130,9 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
                 MODE_PRIVATE);
         sensorManager.unregisterListener(this);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt("stepCount",stepCount);
+        editor.putInt("Steps",stepCount);
+        editor.putLong("CPS",adapter.getTotalCps());
+        editor.putLong("balance",adapter.totalMoney);
         editor.apply();
     }
 
