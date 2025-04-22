@@ -68,10 +68,12 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
                 tycoons.get(i).savedInstanceConvert(savedInstanceState.getInt("tyc#" + i, 0));
             }
             adapter = new TycoonAdapter(getApplicationContext(), tycoons);
-            adapter.totalMoney = preferences.getInt("balance", 0);
+            adapter.totalMoney = preferences.getLong("balance", 0);
+            System.out.println(preferences.getLong("balance", 0));
         }
         else{
             adapter=new TycoonAdapter(getApplicationContext(),tycoons);
+            adapter.totalMoney = preferences.getLong("balance", 0);
         }
 
         stepCount=preferences.getInt("Steps",0);
@@ -87,16 +89,29 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         stepsLabel=findViewById(R.id.totalStepsLabel);
         stepsLabel.setText("Total Steps: "+stepCount);
 
+        coinLabel.setText("Total Coins: "+adapter.totalMoney);
+
+
         mapButton=findViewById(R.id.mapActivity);
         mapButton.setText("Back To Map");
         mapButton.setOnClickListener(v->{
             Intent intent=new Intent(getApplicationContext(),MapActivity.class);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("Steps",stepCount);
+            editor.putLong("CPS",adapter.getTotalCps());
+            editor.putLong("balance",adapter.totalMoney);
+            editor.apply();
             startActivity(intent);
         });
         statsButton=findViewById(R.id.statsActivity);
         statsButton.setText("Stats");
         statsButton.setOnClickListener(v->{
             Intent intent=new Intent(getApplicationContext(), StatsActivity.class);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("Steps",stepCount);
+            editor.putLong("CPS",adapter.getTotalCps());
+            editor.putLong("balance",adapter.totalMoney);
+            editor.apply();
             startActivity(intent);
         });
 
@@ -106,6 +121,7 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
     public void onSensorChanged(SensorEvent event) {
         if(event.sensor.getType()==Sensor.TYPE_STEP_DETECTOR) {
             cpsLabel.setText("Coins Per Step: "+adapter.updateTotalCps());
+            adapter.totalMoney+=adapter.getTotalCps();
             coinLabel.setText("Total Coins: "+adapter.totalMoney);
             stepCount++;
             stepsLabel.setText("Total Steps: "+ stepCount);
