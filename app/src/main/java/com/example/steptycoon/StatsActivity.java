@@ -70,9 +70,9 @@ public class StatsActivity extends AppCompatActivity {
             startActivity(intent);
         });
         btnGoToTycoon.setOnClickListener(view -> {
-            Intent intent = new Intent(getApplicationContext(), TycoonActivity.class);
+            Intent intent2 = new Intent(getApplicationContext(), TycoonActivity.class);
             //intent.putExtra("username",etData.getText().toString());
-            startActivity(intent);
+            startActivity(intent2);
         });
     }
 }
