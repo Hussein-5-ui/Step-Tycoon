@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MapActivity">
 
+
     <TextView
         android:id="@+id/tvSteps"
         android:layout_width="0dp"
@@ -113,5 +114,4 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
