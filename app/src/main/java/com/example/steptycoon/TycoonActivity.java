@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class TycoonActivity extends AppCompatActivity implements SensorEventListener{
     TextView titleLabel,cpsLabel,coinLabel;
-    Integer stepCount;//Only for stats page
+    Integer stepCount=0;//Only for stats page
     ArrayList<TycoonObject> tycoons;
     TycoonAdapter adapter;
     ListView lstTycoon;
@@ -61,11 +61,18 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         tycoons.add(new TycoonObject("Extreme Sports",10000,10000));
         tycoons.add(new TycoonObject("Flight",100000,100000));
         //Saved Instance for Tycoons
-        for(int i=0;i<adapter.tycoons.size();i++){
-           tycoons.get(i).savedInstanceConvert(savedInstanceState.getInt("tyc#"+i,0));
+        if(savedInstanceState!=null) {
+            for (int i = 0; i < tycoons.size(); i++) {
+                tycoons.get(i).savedInstanceConvert(savedInstanceState.getInt("tyc#" + i, 0));
+            }
+            stepCount = savedInstanceState.getInt("stepCount", 0);//Or whatever the before stepcount was
+            adapter = new TycoonAdapter(getApplicationContext(), tycoons);
+            adapter.totalMoney = savedInstanceState.getInt("TotalMoney", 0);
         }
-        adapter=new TycoonAdapter(getApplicationContext(),tycoons);
-        adapter.totalMoney=savedInstanceState.getInt("TotalMoney",0);
+        else{
+            adapter=new TycoonAdapter(getApplicationContext(),tycoons);
+        }
+        lstTycoon.setAdapter(adapter);
         //Sensors
         sensorManager= (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         acc_sensor=sensorManager.getDefaultSensor((Sensor.TYPE_STEP_DETECTOR));
@@ -74,7 +81,7 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         titleLabel.setText("Gym");//Change to whoever's log in it is
         cpsLabel=findViewById(R.id.absltCPSLabel);
         coinLabel=findViewById(R.id.totalCoinLabel);
-        stepCount= savedInstanceState.getInt("stepCount",0);//Or whatever the before stepcount was
+
         mapButton=findViewById(R.id.mapActivity);
         mapButton.setText("Back To Map");
         mapButton.setOnClickListener(v->{

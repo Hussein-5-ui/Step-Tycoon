@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.example.steptycoon.MapActivity;
 import com.example.steptycoon.R;
+import com.example.steptycoon.TycoonActivity;
 import com.example.steptycoon.ui.login.LoginViewModel;
 import com.example.steptycoon.ui.login.LoginViewModelFactory;
 import com.example.steptycoon.databinding.ActivityLoginBinding;
@@ -75,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
             if (loginResult.getSuccess() != null) {
                 updateUiWithUser(loginResult.getSuccess());
                 // Only navigate to MapActivity on successful login
-                Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+                Intent intent = new Intent(LoginActivity.this, TycoonActivity.class);
                 startActivity(intent);
                 finish();
             }

@@ -2,6 +2,7 @@ package com.example.steptycoon;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,8 +76,18 @@ public class TycoonAdapter extends BaseAdapter {
         if(!tycoons.get(i).unlocked){//Dont show if not unlocked
             buyMaxButton.setClickable(false);
             buyButton.setClickable(false);
+            buyMaxButton.setBackgroundColor(Color.GRAY);
+            buyButton.setBackgroundColor(Color.GRAY);
+
+        }
+        else{
+            buyMaxButton.setBackgroundColor(Color.rgb(94, 120, 196));
+            buyButton.setBackgroundColor(Color.rgb(94, 120, 196));
+            buyMaxButton.setClickable(true);
+            buyButton.setClickable(true);
         }
 
+        notifyDataSetChanged();
 
         return view;
     }
@@ -86,6 +97,7 @@ public class TycoonAdapter extends BaseAdapter {
                 tycoons.get(i+1).unlocked = true;
             }
         }
+        notifyDataSetChanged();
     }
     public long updateTotalCps(){
         long totalCps=0;
@@ -93,6 +105,7 @@ public class TycoonAdapter extends BaseAdapter {
             totalCps+=tycoon.getCurrentIncome();
         }
         totalMoney+=totalCps;
+        notifyDataSetChanged();
         return totalCps;
     }
     public long getTotalCps(){
