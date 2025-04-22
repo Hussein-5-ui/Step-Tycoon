@@ -74,7 +74,7 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         titleLabel.setText("Gym");//Change to whoever's log in it is
         cpsLabel=findViewById(R.id.absltCPSLabel);
         coinLabel=findViewById(R.id.totalCoinLabel);
-        stepCount= 0;//Or whatever the before stepcount was
+        stepCount= savedInstanceState.getInt("stepCount",0);//Or whatever the before stepcount was
         mapButton=findViewById(R.id.mapActivity);
         mapButton.setText("Back To Map");
         mapButton.setOnClickListener(v->{
@@ -123,6 +123,7 @@ public class TycoonActivity extends AppCompatActivity implements SensorEventList
         for(int i=0;i<adapter.tycoons.size();i++){
             outState.putInt("tyc#"+i,adapter.tycoons.get(i).count);
         }
+        outState.putInt("stepCount",stepCount);
 
         //Shared Pref
         SharedPreferences sharedPref;
