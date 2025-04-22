@@ -69,17 +69,16 @@ public class LoginActivity extends AppCompatActivity {
             loadingProgressBar.setVisibility(View.GONE);
             if (loginResult.getError() != null) {
                 showLoginFailed(loginResult.getError());
+                // Clear password field on failed login
+                passwordEditText.setText("");
             }
             if (loginResult.getSuccess() != null) {
                 updateUiWithUser(loginResult.getSuccess());
+                // Only navigate to MapActivity on successful login
+                Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+                startActivity(intent);
+                finish();
             }
-            setResult(Activity.RESULT_OK);
-
-            //Complete and destroy login activity once successful
-            //Replace MapActivity with your activity to launch it
-            Intent intent=new Intent(LoginActivity.this, MapActivity.class);
-            startActivity(intent);
-            finish();
         });
 
         TextWatcher afterTextChangedListener = new TextWatcher() {
@@ -125,7 +124,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome) + model.getDisplayName();
-        // TODO : initiate successful logged in experience
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }
 
