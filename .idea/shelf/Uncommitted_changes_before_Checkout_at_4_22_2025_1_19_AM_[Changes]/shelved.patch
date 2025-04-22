@@ -1,0 +1,108 @@
+Index: app/src/main/java/com/example/steptycoon/MapActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.steptycoon;\r\n\r\nimport android.Manifest;\r\nimport android.content.pm.PackageManager;\r\nimport android.os.Bundle;\r\nimport android.util.Log;\r\n\r\nimport androidx.activity.EdgeToEdge;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.core.app.ActivityCompat;\r\nimport androidx.core.graphics.Insets;\r\nimport androidx.core.view.ViewCompat;\r\nimport androidx.core.view.WindowInsetsCompat;\r\n\r\npublic class MapActivity extends AppCompatActivity {\r\n    private static final int REQUEST_LOCATION_PERMISSION = 1;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        EdgeToEdge.enable(this);\r\n        setContentView(R.layout.activity_map);\r\n        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {\r\n            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());\r\n            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);\r\n            return insets;\r\n        });\r\n        //gets the persistent values from sharedPreferences and assigns them default values if they're not set up\r\n        preferences= getSharedPreferences(\"com.step_tycoon\",MODE_PRIVATE);//what's wrong here\r\n        stepCounter=preferences.getInt(\"Steps\",0);\r\n        cps=preferences.getLong(\"CPS\",1);\r\n        balance=preferences.getLong(\"balance\",0);\r\n        //initialize the text views\r\n        tvSteps=findViewById(R.id.tvSteps);\r\n        tvCps=findViewById(R.id.tvCps);\r\n        tvBalance=findViewById(R.id.tvBalance);\r\n        tvSteps.setText(\"Steps: \"+stepCounter);\r\n        tvCps.setText(\"CPS: \"+cps);\r\n        tvBalance.setText(\"Balance: \"+balance);\r\n        //define the sensor manager and the step detector\r\n        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);\r\n        step_sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);\r\n        //define the mapFragment\r\n        mapFragment = (SupportMapFragment) getSupportFragmentManager()\r\n                .findFragmentById(R.id.map);\r\n        //checks for the needed permissions, precise location and activity recognition\r\n        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)\r\n            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);\r\n        else{\r\n            mapFragment.getMapAsync(this);\r\n        }\r\n        if(ContextCompat.checkSelfPermission(this,\r\n                android.Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){\r\n            requestPermissions(new String[]{android.Manifest.permission.ACTIVITY_RECOGNITION}, 1);\r\n        }\r\n    }\r\n    //updates the balance and steps whenever there's a step detected\r\n    @Override\r\n    public void onSensorChanged(SensorEvent event) {\r\n        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {\r\n            stepCounter++;\r\n            balance+=cps;\r\n            //updates the text views based on the new data\r\n            tvSteps.setText(\"Steps: \" + stepCounter);\r\n            tvBalance.setText(\"Balance: \"+balance);\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void onAccuracyChanged(Sensor sensor, int i) {\r\n\r\n    }\r\n    //Checks if the location permission was granted\r\n    @Override\r\n    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,\r\n                                           @NonNull int[] grantResults) {\r\n        super.onRequestPermissionsResult(requestCode, permissions, grantResults);\r\n\r\n        if (requestCode == REQUEST_LOCATION_PERMISSION) {\r\n            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {\r\n                //permission granted, sync map fragment\r\n                mapFragment.getMapAsync(this);\r\n            } else {\r\n                // Permission denied, close the app\r\n                System.out.println(\"Precise location Permission declined\");\r\n                finish();\r\n            }\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void onMapReady(@NonNull GoogleMap googleMap) {\r\n        //when the map is ready, define the mMap and get locationUpdates\r\n        mMap = googleMap;\r\n        getLocationUpdates();\r\n\r\n    }\r\n    //main method of logic\r\n    //gets location updates and changes the map position, rotation, and marker based on it\r\n    @SuppressLint(\"MissingPermission\")\r\n    public void getLocationUpdates(){\r\n        flpClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());\r\n        LocationCallback cb = new LocationCallback() {\r\n            @Override\r\n            public void onLocationAvailability(@NonNull LocationAvailability locationAvailability) {\r\n                super.onLocationAvailability(locationAvailability);\r\n            }\r\n\r\n            @Override\r\n            public void onLocationResult(@NonNull LocationResult locationResult) {\r\n                super.onLocationResult(locationResult);\r\n                //if the locationResult is not empty, get the last location\r\n                if (!locationResult.getLocations().isEmpty()) {\r\n                    Location location = locationResult.getLastLocation();\r\n                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());\r\n                    MarkerOptions markerOptions = new MarkerOptions()\r\n                            .position(latLng)\r\n                            .flat(true)\r\n                            .anchor(0.5f, 0.5f)\r\n                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow_icon));\r\n                    if(userMarker==null)\r\n                        userMarker = mMap.addMarker(markerOptions);\r\n                    else\r\n                        userMarker.setPosition(latLng);\r\n                    float speed = location.getSpeed();\r\n                    float bearing = location.getBearing();\r\n                    //only updates the bearing of the map if the speed is greater than 0.5 m/s for a more stable map\r\n                    if (speed > 0.5 && bearing != 0.0f) {\r\n                        CameraPosition cameraPosition = new CameraPosition.Builder()\r\n                                .target(latLng)\r\n                                .zoom(18f)\r\n                                .bearing(bearing)\r\n                                .tilt(45f)\r\n                                .build();\r\n                        userMarker.setRotation(bearing);\r\n                        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));\r\n                    } else {\r\n                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f));\r\n                    }\r\n\r\n                }\r\n            }\r\n        };\r\n\r\n        flpClient.requestLocationUpdates(createLocationRequest(),cb, Looper.getMainLooper());\r\n    }\r\n    //onclick method for navigating between the two activities\r\n    public void navigate(View view){\r\n        Intent intent;\r\n        // checks which view called it by the ID\r\n        if(view.getId()==R.id.btnTycoon)\r\n            intent=new Intent(MapActivity.this,TycoonActivity.class);\r\n        else\r\n            intent=new Intent(MapActivity.this,StatsActivity.class);\r\n        //saves the persistent information before starting the new activity\r\n        SharedPreferences.Editor editor=preferences.edit();\r\n        editor.putInt(\"Steps\",stepCounter);\r\n        editor.putLong(\"CPS\",cps);\r\n        editor.putLong(\"balance\",balance);\r\n        editor.apply();\r\n        startActivity(intent);\r\n    }\r\n    // creates the locationRequest method\r\n    private LocationRequest createLocationRequest(){\r\n        LocationRequest request = LocationRequest.create();\r\n        request.setWaitForAccurateLocation(true);\r\n        request.setInterval(200);\r\n        request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);\r\n        return  request;\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/steptycoon/MapActivity.java b/app/src/main/java/com/example/steptycoon/MapActivity.java
+--- a/app/src/main/java/com/example/steptycoon/MapActivity.java	(revision d7ef886a5adca2b2181337b7b0e384627d18b90f)
++++ b/app/src/main/java/com/example/steptycoon/MapActivity.java	(date 1745299130054)
+@@ -1,19 +1,58 @@
+ package com.example.steptycoon;
+ 
+-import android.Manifest;
++import android.annotation.SuppressLint;
++import android.content.Context;
++import android.content.Intent;
++import android.content.SharedPreferences;
+ import android.content.pm.PackageManager;
++import android.hardware.Sensor;
++import android.hardware.SensorEvent;
++import android.hardware.SensorEventListener;
++import android.hardware.SensorManager;
++import android.location.Location;
+ import android.os.Bundle;
+-import android.util.Log;
++import android.os.Looper;
++import android.view.View;
++import android.widget.TextView;
+ 
+ import androidx.activity.EdgeToEdge;
++import androidx.annotation.NonNull;
+ import androidx.appcompat.app.AppCompatActivity;
+ import androidx.core.app.ActivityCompat;
++import androidx.core.content.ContextCompat;
+ import androidx.core.graphics.Insets;
+ import androidx.core.view.ViewCompat;
+ import androidx.core.view.WindowInsetsCompat;
+ 
+-public class MapActivity extends AppCompatActivity {
+-    private static final int REQUEST_LOCATION_PERMISSION = 1;
++import com.google.android.gms.location.FusedLocationProviderClient;
++import com.google.android.gms.location.LocationAvailability;
++import com.google.android.gms.location.LocationCallback;
++import com.google.android.gms.location.LocationRequest;
++import com.google.android.gms.location.LocationResult;
++import com.google.android.gms.location.LocationServices;
++import com.google.android.gms.maps.CameraUpdateFactory;
++import com.google.android.gms.maps.GoogleMap;
++import com.google.android.gms.maps.OnMapReadyCallback;
++import com.google.android.gms.maps.SupportMapFragment;
++import com.google.android.gms.maps.model.BitmapDescriptorFactory;
++import com.google.android.gms.maps.model.CameraPosition;
++import com.google.android.gms.maps.model.LatLng;
++import com.google.android.gms.maps.model.Marker;
++import com.google.android.gms.maps.model.MarkerOptions;
++
++public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
++    private GoogleMap mMap;
++    int stepCounter;
++    long cps;
++    long balance;
++    TextView tvSteps,tvCps,tvBalance;
++    SupportMapFragment mapFragment;
++    private static final int REQUEST_LOCATION_PERMISSION = 111;
++    FusedLocationProviderClient flpClient;
++    Marker userMarker=null;
++    SensorManager sensorManager;
++    Sensor step_sensor;
++    SharedPreferences preferences;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -28,8 +67,8 @@
+         //gets the persistent values from sharedPreferences and assigns them default values if they're not set up
+         preferences= getSharedPreferences("com.step_tycoon",MODE_PRIVATE);//what's wrong here
+         stepCounter=preferences.getInt("Steps",0);
+-        cps=preferences.getLong("CPS",1);
+-        balance=preferences.getLong("balance",0);
++        cps=preferences.getInt("CPS",1);
++        balance=preferences.getInt("balance",0);
+         //initialize the text views
+         tvSteps=findViewById(R.id.tvSteps);
+         tvCps=findViewById(R.id.tvCps);
+@@ -168,4 +207,22 @@
+         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+         return  request;
+     }
++    @Override
++    protected void onStop() {
++        super.onStop();
++        //saves the persistent data before closing the app
++        SharedPreferences.Editor editor=preferences.edit();
++        editor.putInt("Steps",stepCounter);
++        editor.putLong("CPS",cps);
++        editor.putLong("balance",balance);
++        editor.apply();
++        sensorManager.unregisterListener(this);
++    }
++
++    @Override
++    protected void onStart() {
++        super.onStart();
++        sensorManager.registerListener(this,step_sensor,SensorManager.SENSOR_DELAY_NORMAL);
++    }
++
+ }
+\ No newline at end of file
