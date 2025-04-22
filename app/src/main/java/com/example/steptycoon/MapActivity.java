@@ -1,58 +1,19 @@
 package com.example.steptycoon;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.Manifest;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
-import android.view.View;
-import android.widget.TextView;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
-    private GoogleMap mMap;
-    int stepCounter;
-    long cps;
-    long balance;
-    TextView tvSteps,tvCps,tvBalance;
-    SupportMapFragment mapFragment;
-    private static final int REQUEST_LOCATION_PERMISSION = 111;
-    FusedLocationProviderClient flpClient;
-    Marker userMarker=null;
-    SensorManager sensorManager;
-    Sensor step_sensor;
-    SharedPreferences preferences;
+public class MapActivity extends AppCompatActivity {
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +28,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //gets the persistent values from sharedPreferences and assigns them default values if they're not set up
         preferences= getSharedPreferences("com.step_tycoon",MODE_PRIVATE);//what's wrong here
         stepCounter=preferences.getInt("Steps",0);
-        cps=preferences.getInt("CPS",1);
-        balance=preferences.getInt("balance",0);
+        cps=preferences.getLong("CPS",1);
+        balance=preferences.getLong("balance",0);
         //initialize the text views
         tvSteps=findViewById(R.id.tvSteps);
         tvCps=findViewById(R.id.tvCps);
@@ -163,8 +124,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         userMarker.setPosition(latLng);
                     float speed = location.getSpeed();
                     float bearing = location.getBearing();
-                    //only updates the bearing of the map if the speed is not 0
-                    if (speed > 0 && bearing != 0.0f) {
+                    //only updates the bearing of the map if the speed is greater than 0.5 m/s for a more stable map
+                    if (speed > 0.5 && bearing != 0.0f) {
                         CameraPosition cameraPosition = new CameraPosition.Builder()
                                 .target(latLng)
                                 .zoom(18f)
@@ -207,22 +168,4 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         return  request;
     }
-    @Override
-    protected void onStop() {
-        super.onStop();
-        //saves the persistent data before closing the app
-        SharedPreferences.Editor editor=preferences.edit();
-        editor.putInt("Steps",stepCounter);
-        editor.putLong("CPS",cps);
-        editor.putLong("balance",balance);
-        editor.apply();
-        sensorManager.unregisterListener(this);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        sensorManager.registerListener(this,step_sensor,SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
 }
